@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>ACCESS — AUTHORIZED FOR IZORA</title>
+<style>
+  :root{
+    --bg-1: #02030a;
+    --bg-2: #07131a;
+    --term: #0b1220;
+    --glow: #39ff9a;
+    --muted: #98b4a8;
+    --accent: #ff6b88;
+    --card-bg: linear-gradient(180deg,#08101a,#03111a);
+  }
+  html,body{height:100%;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));color:var(--glow);-webkit-font-smoothing:antialiased; -webkit-text-size-adjust:none;}
+  /* layout */
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;}
+  .frame{width:100%;max-width:960px;height:86vh;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,0.6);overflow:hidden;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;position:relative;}
+  /* top bar */
+  .bar{height:54px;padding:10px 14px;display:flex;align-items:center;gap:12px;background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border-bottom:1px solid rgba(255,255,255,0.02)}
+  .dots{display:flex;gap:8px}
+  .dot{width:14px;height:14px;border-radius:50%}
+  .dot.red{background:#ff605c}.dot.yellow{background:#ffbd2e}.dot.green{background:#2bff86}
+  .title{flex:1;color:var(--muted);font-size:14px;letter-spacing:0.6px}
+  .notice{font-size:13px;color:rgba(255,255,255,0.06);position:absolute;top:12px;left:50%;transform:translateX(-50%);pointer-events:none}
+  /* screen */
+  .screen{flex:1;padding:18px 20px;overflow:auto;line-height:1.45;font-size:16px;box-sizing:border-box}
+  .line{white-space:pre-wrap;word-break:break-word;opacity:0.98;margin:6px 0}
+  .muted{color:var(--muted);font-size:13px}
+  .cursor{display:inline-block;width:10px;background:var(--glow);margin-left:6px;animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  /* card */
+  .revealCard{display:none;background:var(--card-bg);color:#e7f5ff;border-radius:12px;padding:22px;margin-top:18px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 12px 30px rgba(2,6,15,0.6)}
+  .loveTitle{font-family:serif;font-size:20px;margin-bottom:10px;color:var(--accent);letter-spacing:0.6px}
+  .loveBody{color:#dfeff6;font-size:16px;line-height:1.6;white-space:pre-wrap}
+  .sig{margin-top:14px;font-weight:600;color:rgba(255,255,255,0.85)}
+  /* controls */
+  .controls{padding:12px;border-top:1px solid rgba(255,255,255,0.02);display:flex;gap:10px;align-items:center;justify-content:flex-end;background:linear-gradient(0deg, rgba(255,255,255,0.01), transparent)}
+  .btn{background:transparent;color:var(--glow);border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:9px;font-size:15px;box-shadow:0 6px 16px rgba(0,0,0,0.45)}
+  .btn.primary{background:var(--glow);color:#00110a;font-weight:700;border:none}
+  .small{font-size:13px;color:var(--muted)}
+  /* overlay for mobile suggestion */
+  .orientationNotice{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);color:var(--muted);padding:8px 12px;border-radius:999px;font-size:13px;display:flex;gap:10px;align-items:center}
+  /* heartbeat */
+  .heartWrap{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .heart{width:34px;height:34px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#ff6b88,#ff3e6b);color:white;font-weight:700;box-shadow:0 8px 20px rgba(255,107,136,0.18);transform-origin:center;opacity:0}
+  .pulse{animation:heartbeat 1s infinite;display:inline-block}
+  @keyframes heartbeat{0%{transform:scale(1)}25%{transform:scale(1.18)}40%{transform:scale(0.96)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+  /* small screens */
+  @media (max-width:720px){
+    .frame{height:92vh;border-radius:10px}
+    .bar{height:50px;padding:8px}
+    .screen{font-size:15px;padding:14px}
+    .loveBody{font-size:15px}
+    .dot{width:12px;height:12px}
+  }
+  /* accessibility focus */
+  .screen:focus{outline:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="frame" role="main" aria-label="Secure terminal for Izora">
+    <div class="bar" aria-hidden="true">
+      <div class="dots" aria-hidden="true">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="title">secure-shell • connection test • for: IZORA_DEVONISH</div>
+      <div class="small">session encrypted</div>
+    </div>
+
+    <div class="screen" id="screen" tabindex="0" aria-live="polite"></div>
+
+    <div class="controls">
+      <button class="btn" id="replay" title="Replay the sequence">Replay</button>
+      <button class="btn" id="pause" title="Pause/Resume">Pause</button>
+      <button class="btn primary" id="revealBtn" title="Reveal the message">Reveal</button>
+    </div>
+  </div>
+</div>
+
+<div class="orientationNotice" id="orient">Tip: Landscape looks cinematic — rotate your iPad for best effect</div>
+
+<script>
+/* ---------------- Configuration ---------------- */
+const typingSpeed = 28; // ms per char for terminal
+const slowSpeed = 18;   // ms per char for letter
+const progressSteps = 28;
+const introLines = [
+  "[*] initiating connection to heartserver...",
+  "[*] verifying identity: IZORA_DEVONISH",
+  "[*] opening secure channel • TLS 1.3",
+  ">>> unauthorized access simulated — escalating privileges",
+  ">>> running adaptive bypass...",
+  ">>> firewall  ⇢  [■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■] 99%",
+  ">>> handshake complete • token validated",
+  ">>> locating sealed packet: /sealed/affection.enc",
+  "progress: ["
+];
+
+/* ---- Personalized Love Letter ---- */
+const loveTitle = "My Dearest Izora,";
+const loveText = `Since the moment I last beheld you, a strange and beautiful fever has taken hold of my soul. I move through the hours of the day like a man surrounded by shadows, performing duties and exchanging words, yet all feels hollow in your absence. Only the thought of you lends color to this grayscale world.
+
+I confess to you, Izora — I am utterly helpless before the power you possess over me. One word from your tender lips softens every edge of my spirit; a single glance from your eyes lifts me higher than any triumph ever could. Should you ever doubt the purity of my devotion, remember the restlessness that grips me when I cannot speak your name aloud.
+
+Even now, as I write, my heart aches with the memory of your touch — warm, soft, impossibly comforting. At night, the quiet mocks me; I reach to the empty place beside me and imagine you there, your head resting over my heartbeat, the rise and fall of your breath calming the storms within me.
+
+You are the gentle hymn in a world of noise; the single flame that illuminates every path I take. When distance separates us, I feel as though the universe has conspired against me. And when I imagine you thinking of me — even for the briefest sigh — I am lifted to a joy deeper than any victory known by kings.
+
+Write me soon, my love. Each moment without your words is time stolen from my very spirit — nothing else can soothe this longing. Until I may once again hold you, trace the elegance of your jaw with my fingertips, and lose myself in the sanctuary of your gaze, I remain suspended — half-alive, waiting.
+
+I am yours — completely, foolishly, irrevocably — now and forever after.
+
+Forever devoted,
+Xander Bennett
+`;
+
+/* --------------- DOM ---------------- */
+const screen = document.getElementById('screen');
+const replayBtn = document.getElementById('replay');
+const revealBtn = document.getElementById('revealBtn');
+const pauseBtn = document.getElementById('pause');
+const orient = document.getElementById('orient');
+
+let paused = false;
+let sequenceRunning = false;
+let audioCtx, masterGain, typingOsc, ambienceGain, heartbeatGain;
+
+/* --------------- Audio helpers (WebAudio) --------------- */
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain(); masterGain.gain.value = 0.9; masterGain.connect(audioCtx.destination);
+  // typing clicks (noise burst)
+  typingOsc = audioCtx.createOscillator();
+  const typingGain = audioCtx.createGain(); typingGain.gain.value = 0;
+  typingOsc.type = "square"; typingOsc.frequency.value = 900;
+  typingOsc.connect(typingGain); typingGain.connect(masterGain);
+  typingOsc.start();
+  // ambience pad
+  const ambience = audioCtx.createOscillator();
+  const ambienceFilter = audioCtx.createBiquadFilter(); ambienceFilter.type = "lowpass"; ambienceFilter.frequency.value = 400;
+  ambience.type = "sine"; ambience.frequency.value = 110; const ambienceGainNode = audioCtx.createGain(); ambienceGainNode.gain.value = 0;
+  ambience.connect(ambienceFilter); ambienceFilter.connect(ambienceGainNode); ambienceGainNode.connect(masterGain); ambience.start();
+  ambienceGain = ambienceGainNode;
+  // heartbeat (low thump)
+  const heartOsc = audioCtx.createOscillator();
+  const heartGain = audioCtx.createGain(); heartGain.gain.value = 0;
+  heartOsc.type = "sine"; heartOsc.frequency.value = 60; heartOsc.connect(heartGain); heartGain.connect(masterGain); heartOsc.start();
+  heartbeatGain = heartGain;
+  // closure: small function to trigger tiny click
+  return {typingGain: typingGain, ambienceGainNode: ambienceGainNode};
+}
+function tapClick(){
+  if(!audioCtx) return;
+  const now = audioCtx.currentTime;
+  // brief click
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(0.12, now+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, now+0.055);
+  const osc = audioCtx.createOscillator(); osc.type="square"; osc.frequency.setValueAtTime(1400, now);
+  osc.connect(g); g.connect(masterGain);
+  osc.start(now); osc.stop(now+0.06);
+}
+function ambientOn(){
+  if(!audioCtx) initAudio();
+  // fade ambience
+  ambienceGain.gain.cancelScheduledValues(audioCtx.currentTime);
+  ambienceGain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime+1.2);
+}
+function ambientOff(){
+  if(!audioCtx) return;
+  ambienceGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime+0.6);
+}
+function heartbeatOn(){
+  if(!audioCtx) initAudio();
+  heartbeatGain.gain.cancelScheduledValues(audioCtx.currentTime);
+  heartbeatGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime+0.6);
+}
+function heartbeatOff(){
+  if(!audioCtx) return;
+  heartbeatGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime+0.6);
+}
+
+/* --------------- Utilities --------------- */
+function appendLine(text = "", cls=""){
+  const d = document.createElement('div');
+  d.className = "line " + cls;
+  d.textContent = text;
+  screen.appendChild(d);
+  screen.scrollTop = screen.scrollHeight;
+  return d;
+}
+function clearScreen(){ screen.innerHTML = ""; }
+
+/* --------------- Typing animation --------------- */
+function typeToElement(el, text, speed = typingSpeed){
+  return new Promise(resolve=>{
+    let i=0;
+    function step(){
+      if(paused) { setTimeout(step, 120); return; }
+      el.textContent = text.slice(0,i+1);
+      screen.scrollTop = screen.scrollHeight;
+      // small sound
+      if(i % Math.max(1,Math.round(8/(speed/20))) === 0) tapClick();
+      i++;
+      if(i < text.length) setTimeout(step, speed + Math.round(Math.random()*8));
+      else resolve();
+    }
+    step();
+  });
+}
+
+/* --------------- Sequence (fake hack -> reveal) --------------- */
+async function playSequence(){
+  if(sequenceRunning) return;
+  sequenceRunning = true;
+  paused = false;
+  clearScreen();
+  ambientOn();
+  for(let i=0;i<introLines.length;i++){
+    if(paused){ await new Promise(r=>setTimeout(r,200)); i--; continue; }
+    if(introLines[i].startsWith("progress:")){
+      // progress bar row
+      const row = appendLine("progress: [                                                  ] 0%");
+      for(let p=1;p<=progressSteps;p++){
+        if(paused){ p--; await new Promise(r=>setTimeout(r,150)); continue; }
+        const pct = Math.round((p/progressSteps)*100);
+        const filled = Math.round((p/progressSteps)*50);
+        const bar = "█".repeat(filled) + " ".repeat(50-filled);
+        row.textContent = `progress: [${bar}] ${pct}%`;
+        screen.scrollTop = screen.scrollHeight;
+        await new Promise(r=>setTimeout(r, 45 + Math.random()*40));
+      }
+      appendLine("progress: [██████████████████████████████████████████████████] 100%");
+      await new Promise(r=>setTimeout(r, 260 + Math.random()*320));
+      continue;
+    }
+    const el = appendLine("");
+    await typeToElement(el, introLines[i]);
+    await new Promise(r=>setTimeout(r, 160 + Math.random()*240));
+  }
+  // short dramatic pause
+  await new Promise(r=>setTimeout(r, 520));
+  // reveal automatically
+  revealLetter();
+  sequenceRunning = false;
+}
+
+/* --------------- Reveal routine --------------- */
+let revealed = false;
+function revealLetter(force=false){
+  if(revealed && !force) return;
+  revealed = true;
+  ambientOff();
+  heartbeatOn();
+
+  // dim older terminal lines slightly
+  Array.from(document.querySelectorAll('.line')).forEach((el, idx)=>{
+    if(idx < 6) el.style.opacity = "0.18";
+  });
+
+  // create card
+  const card = document.createElement('div'); card.className = "revealCard";
+  card.innerHTML = `<div class="loveTitle">${loveTitle}</div>
+    <div class="loveBody" id="loveBody"></div>
+    <div class="heartWrap"><div class="heart pulse" id="heart">♥</div><div class="small" style="color:var(--muted)">Press heart to pulse</div></div>
+    <div class="sig">Forever devoted,<br>Xander Bennett</div>`;
+  screen.appendChild(card);
+  screen.scrollTop = screen.scrollHeight;
+
+  // typing the letter gently
+  const loveEl = document.getElementById('loveBody');
+  let i = 0;
+  function write(){
+    if(paused){ setTimeout(write, 150); return; }
+    const chunk = loveText.slice(i, i+3);
+    loveEl.textContent += chunk;
+    i += 3;
+    screen.scrollTop = screen.scrollHeight;
+    if(i < loveText.length) setTimeout(write, slowSpeed + Math.random()*10);
+    else {
+      // finalize: reveal card visually
+      card.style.display = "block";
+      card.style.opacity = 0;
+      let op = 0;
+      const fade = setInterval(()=>{ op+=0.06; card.style.opacity = op; if(op>=1) clearInterval(fade); }, 20);
+      // show heart
+      const heart = document.getElementById('heart');
+      heart.style.opacity = 1;
+      heart.addEventListener('click', ()=>{
+        // little pulse + sound
+        heart.classList.remove('pulse');
+        void heart.offsetWidth;
+        heart.classList.add('pulse');
+        if(audioCtx) {
+          const now = audioCtx.currentTime;
+          const g = audioCtx.createGain();
+          g.gain.setValueAtTime(0.0001, now);
+          g.gain.exponentialRampToValueAtTime(0.08, now+0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, now+0.32);
+          const o = audioCtx.createOscillator(); o.type="sine"; o.frequency.setValueAtTime(200, now);
+          o.connect(g); g.connect(masterGain);
+          o.start(now); o.stop(now+0.35);
+        }
+      });
+    }
+  }
+  write();
+}
+
+/* --------------- Controls --------------- */
+replayBtn.addEventListener('click', ()=>{ revealed=false; heartbeatOff(); playSequence(); });
+revealBtn.addEventListener('click', ()=>{ revealLetter(true); });
+pauseBtn.addEventListener('click', ()=>{ paused = !paused; pauseBtn.textContent = paused ? 'Resume' : 'Pause'; });
+
+/* --------------- Interactions & accessibility --------------- */
+// tap / touch: quick reveal
+let lastTap = 0;
+screen.addEventListener('click', (e)=>{
+  const t = Date.now();
+  if(t - lastTap < 280){ // double tap to speed reveal
+    revealLetter(true);
+  } else {
+    // single tap triggers small audio & continue
+    initAudio(); tapClick(); ambientOn();
+  }
+  lastTap = t;
+});
+screen.addEventListener('touchstart', (e)=>{ initAudio(); tapClick(); ambientOn(); });
+
+// Start the sequence automatically when user interacts (audio requires a user gesture on iOS)
+function warmStart(){
+  initAudio();
+  ambientOn();
+  playSequence();
+  // hide orient notice after a few seconds
+  setTimeout(()=>{ orient.style.display = 'none'; }, 3800);
+}
+// user gesture required: listen for first click/tap anywhere
+document.addEventListener('click', function firstStart(){ document.removeEventListener('click', firstStart); warmStart(); });
+document.addEventListener('touchstart', function firstStartT(){ document.removeEventListener('touchstart', firstStartT); warmStart(); });
+
+/* fallback: if no interaction after 5s, still start but quiet */
+setTimeout(()=>{ if(!sequenceRunning && !revealed){ playSequence(); } }, 6000);
+
+</script>
+</body>
+</html>
